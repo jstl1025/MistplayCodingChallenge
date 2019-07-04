@@ -9,7 +9,7 @@ public class Game {
     @JsonProperty("imgURL")
     private String imgURL;
 
-    @JsonProperty("subGenre")
+    @JsonProperty("subgenre")
     private String subGenre;
 
     @JsonProperty("title")
