@@ -18,7 +18,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -34,12 +33,15 @@ public class MainActivity extends AppCompatActivity {
 
         searchView = findViewById(R.id.searchView);
         gameListView = findViewById(R.id.gameListView);
+        //search field always visible, can start search anytime
         searchView.setIconifiedByDefault(false);
+        //prevent keyboard from appearing right after entering the app
         searchView.setFocusable(false);
         setSearch();
 
         deserializeAsList();
 
+        //setup adapter for listView (adapter is filterable)
         mCustomAdapter = new CustomAdapter(this, allGames);
         gameListView.setAdapter(mCustomAdapter);
         gameListView.setTextFilterEnabled(true);
@@ -52,32 +54,40 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                System.out.println(firstVisibleItem+"---"+visibleItemCount+"---"+totalItemCount);
-                //add more games to the list when there are two items remaining at the scroll end, then update listView
-                if(firstVisibleItem+visibleItemCount >= totalItemCount-2){
+                //for testing
+                //System.out.println(firstVisibleItem + "---" + visibleItemCount + "---" + totalItemCount);
+
+                //add more games to the list when there are no items remaining at the scroll end, then update listView
+                //(info: totalItemCount-2 for 2 remain at the scroll end)
+                if (firstVisibleItem + visibleItemCount >= totalItemCount) {
                     mCustomAdapter.addGames(totalItemCount);
                     mCustomAdapter.notifyDataSetChanged();
                 }
             }
         });
 
-        gameListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "You choose " + position + " listItem", Toast.LENGTH_SHORT).show();
-            }
-        });
+        //doesn't need onClick function for now
+//        gameListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                //Toast.makeText(MainActivity.this, "You choose " + position + " listItem", Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
 
+    //deserialize game.json file into a list of Game objects
     private void deserializeAsList() {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            allGames = objectMapper.readValue(loadJSONFromAsset(), new TypeReference<List<Game>>(){});
+            allGames = objectMapper.readValue(loadJSONFromAsset(), new TypeReference<List<Game>>() {
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    //open the game.json file
+    //return a string of json containing all info from game.json
     private String loadJSONFromAsset() {
         String json;
         try {
@@ -86,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
             byte[] buffer = new byte[size];
             is.read(buffer);
             is.close();
-            json = new String(buffer,"UTF-8");
+            json = new String(buffer, "UTF-8");
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -94,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         return json;
     }
 
+    //setup search view to listen for user query
     private void setSearch() {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
